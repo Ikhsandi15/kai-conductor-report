@@ -107,7 +107,7 @@ export function ReportFormClient({ trains, currentUserId }: { trains: any[], cur
         <CardContent className="grid grid-cols-1 gap-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Kereta Api</label>
-            <Select value={trainNumber} onValueChange={setTrainNumber}>
+            <Select value={trainNumber} onValueChange={(val) => setTrainNumber(val || "")}>
               <SelectTrigger className="bg-gray-50">
                 <SelectValue placeholder="Pilih Kereta" />
               </SelectTrigger>
@@ -140,7 +140,7 @@ export function ReportFormClient({ trains, currentUserId }: { trains: any[], cur
                 <label className="text-xs font-semibold text-gray-500">Tipe Kelas</label>
                 <Select 
                   value={finding.carriageType} 
-                  onValueChange={(val) => updateFinding(index, 'carriageType', val)}
+                  onValueChange={(val) => updateFinding(index, 'carriageType', val || "")}
                 >
                   <SelectTrigger className="bg-white">
                     <SelectValue placeholder="Pilih Tipe Kelas" />
@@ -156,7 +156,7 @@ export function ReportFormClient({ trains, currentUserId }: { trains: any[], cur
                 <label className="text-xs font-semibold text-gray-500">No. Gerbong</label>
                 <Select 
                   value={finding.carriageNumber} 
-                  onValueChange={(val) => updateFinding(index, 'carriageNumber', val)}
+                  onValueChange={(val) => updateFinding(index, 'carriageNumber', val || "")}
                   disabled={!finding.carriageType}
                 >
                   <SelectTrigger className="bg-white disabled:bg-gray-100 disabled:opacity-50">
