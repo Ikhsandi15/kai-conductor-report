@@ -5,8 +5,28 @@ import { id } from "date-fns/locale";
 
 export async function GET(request: Request) {
   try {
-    // Ambil semua data laporan dan temuannya
+    const { searchParams } = new URL(request.url);
+    const dateParam = searchParams.get("date");
+    const conductorIdParam = searchParams.get("conductorId");
+
+    const where: any = {};
+    if (conductorIdParam) {
+      where.conductorId = parseInt(conductorIdParam, 10);
+    }
+    if (dateParam) {
+      const startOfDay = new Date(dateParam);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(dateParam);
+      endOfDay.setHours(23, 59, 59, 999);
+      where.dutyDate = {
+        gte: startOfDay,
+        lte: endOfDay,
+      };
+    }
+
+    // Ambil data berdasarkan filter
     const reports = await prisma.report.findMany({
+      where,
       include: {
         conductor: true,
         train: true,

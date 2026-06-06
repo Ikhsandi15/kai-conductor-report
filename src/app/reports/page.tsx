@@ -2,9 +2,30 @@ import { prisma } from "@/lib/prisma";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import { ReportFilterClient } from "./ReportFilterClient";
 
-export default async function DashboardPage() {
+export default async function DashboardPage(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+  const searchParams = await props.searchParams;
+  const dateParam = typeof searchParams.date === 'string' ? searchParams.date : undefined;
+  const conductorIdParam = typeof searchParams.conductorId === 'string' ? searchParams.conductorId : undefined;
+
+  const where: any = {};
+  if (conductorIdParam) {
+    where.conductorId = parseInt(conductorIdParam, 10);
+  }
+  if (dateParam) {
+    const startOfDay = new Date(dateParam);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(dateParam);
+    endOfDay.setHours(23, 59, 59, 999);
+    where.dutyDate = {
+      gte: startOfDay,
+      lte: endOfDay,
+    };
+  }
+
   const reports = await prisma.report.findMany({
+    where,
     include: {
       conductor: true,
       train: true,
@@ -13,19 +34,21 @@ export default async function DashboardPage() {
     orderBy: { dutyDate: "desc" },
   });
 
+  const conductors = await prisma.user.findMany({
+    where: { role: "CONDUCTOR" },
+    select: { id: true, name: true }
+  });
+
   return (
-    <div className="container mx-auto py-10 px-4 md:px-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="container mx-auto py-10 px-4 md:px-8 space-y-6">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Dashboard Laporan</h1>
           <p className="text-gray-500">Rekapitulasi seluruh laporan akhir dinas kondektur</p>
         </div>
-        <a href="/api/export/excel" target="_blank" rel="noreferrer">
-          <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2 shadow-sm transition-colors">
-            Download Excel
-          </button>
-        </a>
       </div>
+
+      <ReportFilterClient conductors={conductors} />
 
       <div className="bg-white rounded-md border shadow-sm">
         <Table>
