@@ -45,7 +45,7 @@ export function ReportFilterClient({ conductors }: { conductors: any[] }) {
       <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
         <div className="flex flex-col gap-1.5 w-full md:w-48">
           <label className="text-xs font-semibold text-gray-500">Kondektur</label>
-          <Select value={conductorId} onValueChange={setConductorId}>
+          <Select value={conductorId} onValueChange={(val) => setConductorId(val || "all")}>
             <SelectTrigger className="bg-white">
               <SelectValue placeholder="Semua Kondektur" />
             </SelectTrigger>
