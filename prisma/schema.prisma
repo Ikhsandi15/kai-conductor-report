@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CONDUCTOR
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  name      String
+  role      Role      @default(CONDUCTOR)
+  reports   Report[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Train {
+  number    String    @id
+  name      String
+  isActive  Boolean   @default(true)
+  reports   Report[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Report {
+  id              String          @id @default(cuid())
+  conductorId     Int
+  conductor       User            @relation(fields: [conductorId], references: [id])
+  trainNumber     String
+  train           Train           @relation(fields: [trainNumber], references: [number])
+  dutyDate        DateTime
+  status          String          @default("SUBMITTED")
+  findings        ReportFinding[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model ReportFinding {
+  id              String    @id @default(cuid())
+  reportId        String
+  report          Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  carriageType    String
+  carriageNumber  String
+  description     String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
