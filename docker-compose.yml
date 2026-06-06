@@ -34,7 +34,7 @@ services:
       db:
         condition: service_healthy
     command: >
-      sh -c "npx prisma db push --accept-data-loss && node server.js"
+      sh -c "node node_modules/prisma/build/index.js db push --accept-data-loss && node server.js"
 
 volumes:
   mysql_data:
