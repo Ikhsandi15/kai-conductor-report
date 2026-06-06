@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -38,6 +38,29 @@ export function ReportFormClient({ trains, currentUserId }: { trains: any[], cur
   const [findings, setFindings] = useState([
     { carriageType: "", carriageNumber: "", description: "" }
   ]);
+
+  // Load draft dari localStorage saat komponen dimount
+  useEffect(() => {
+    const saved = localStorage.getItem('draft_report');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.trainNumber) setTrainNumber(parsed.trainNumber);
+        if (parsed.findings && parsed.findings.length > 0) setFindings(parsed.findings);
+      } catch (e) {
+        console.error("Gagal load draft", e);
+      }
+    }
+  }, []);
+
+  // Simpan draft otomatis setiap kali data berubah
+  useEffect(() => {
+    // Jangan simpan kalau masih bener-bener kosong dari awal (cegah over-write draft yg baru diload)
+    localStorage.setItem('draft_report', JSON.stringify({
+      trainNumber,
+      findings
+    }));
+  }, [trainNumber, findings]);
 
   const addFinding = () => {
     setFindings([...findings, { carriageType: "", carriageNumber: "", description: "" }]);
@@ -88,7 +111,8 @@ export function ReportFormClient({ trains, currentUserId }: { trains: any[], cur
 
     if (res.success) {
       alert("Laporan berhasil disubmit!");
-      // Reset form
+      // Reset form dan hapus draft
+      localStorage.removeItem('draft_report');
       setTrainNumber("");
       setFindings([{ carriageType: "", carriageNumber: "", description: "" }]);
     } else {
