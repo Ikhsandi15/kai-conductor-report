@@ -16,22 +16,26 @@ export async function GET(request: Request) {
       where.conductorId = parseInt(conductorIdParam, 10);
     }
     
+    // Helper untuk mendapatkan UTC Start dan End dari tanggal WIB (UTC+7)
+    const getWibDateBounds = (dateStr?: string | null) => {
+      const d = dateStr ? new Date(dateStr) : new Date();
+      // Jika tidak ada argumen (new Date()), ini adalah UTC. Kita sesuaikan dengan jam WIB
+      const utcStart = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), -7, 0, 0, 0));
+      const utcEnd = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), 16, 59, 59, 999));
+      return { gte: utcStart, lte: utcEnd };
+    };
+
     if (dateMode === "today") {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const endToday = new Date();
-      endToday.setHours(23, 59, 59, 999);
-      where.dutyDate = { gte: today, lte: endToday };
+      const bounds = getWibDateBounds();
+      where.dutyDate = { gte: bounds.gte, lte: bounds.lte };
     } else if (dateMode === "range" && (startDate || endDate)) {
       where.dutyDate = {};
       if (startDate) {
-        const gte = new Date(startDate);
-        gte.setHours(0, 0, 0, 0);
+        const { gte } = getWibDateBounds(startDate);
         where.dutyDate.gte = gte;
       }
       if (endDate) {
-        const lte = new Date(endDate);
-        lte.setHours(23, 59, 59, 999);
+        const { lte } = getWibDateBounds(endDate);
         where.dutyDate.lte = lte;
       }
     }
