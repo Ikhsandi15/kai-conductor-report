@@ -6,22 +6,34 @@ import { id } from "date-fns/locale";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const dateParam = searchParams.get("date");
+    const dateMode = searchParams.get("dateMode");
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
     const conductorIdParam = searchParams.get("conductorId");
 
     const where: any = {};
     if (conductorIdParam) {
       where.conductorId = parseInt(conductorIdParam, 10);
     }
-    if (dateParam) {
-      const startOfDay = new Date(dateParam);
-      startOfDay.setHours(0, 0, 0, 0);
-      const endOfDay = new Date(dateParam);
-      endOfDay.setHours(23, 59, 59, 999);
-      where.dutyDate = {
-        gte: startOfDay,
-        lte: endOfDay,
-      };
+    
+    if (dateMode === "today") {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const endToday = new Date();
+      endToday.setHours(23, 59, 59, 999);
+      where.dutyDate = { gte: today, lte: endToday };
+    } else if (dateMode === "range" && (startDate || endDate)) {
+      where.dutyDate = {};
+      if (startDate) {
+        const gte = new Date(startDate);
+        gte.setHours(0, 0, 0, 0);
+        where.dutyDate.gte = gte;
+      }
+      if (endDate) {
+        const lte = new Date(endDate);
+        lte.setHours(23, 59, 59, 999);
+        where.dutyDate.lte = lte;
+      }
     }
 
     // Ambil data berdasarkan filter

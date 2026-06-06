@@ -6,22 +6,34 @@ import { ReportFilterClient } from "./ReportFilterClient";
 
 export default async function DashboardPage(props: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const searchParams = await props.searchParams;
-  const dateParam = typeof searchParams.date === 'string' ? searchParams.date : undefined;
+  const dateMode = typeof searchParams.dateMode === 'string' ? searchParams.dateMode : undefined;
+  const startDate = typeof searchParams.startDate === 'string' ? searchParams.startDate : undefined;
+  const endDate = typeof searchParams.endDate === 'string' ? searchParams.endDate : undefined;
   const conductorIdParam = typeof searchParams.conductorId === 'string' ? searchParams.conductorId : undefined;
 
   const where: any = {};
   if (conductorIdParam) {
     where.conductorId = parseInt(conductorIdParam, 10);
   }
-  if (dateParam) {
-    const startOfDay = new Date(dateParam);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(dateParam);
-    endOfDay.setHours(23, 59, 59, 999);
-    where.dutyDate = {
-      gte: startOfDay,
-      lte: endOfDay,
-    };
+  
+  if (dateMode === "today") {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endToday = new Date();
+    endToday.setHours(23, 59, 59, 999);
+    where.dutyDate = { gte: today, lte: endToday };
+  } else if (dateMode === "range" && (startDate || endDate)) {
+    where.dutyDate = {};
+    if (startDate) {
+      const gte = new Date(startDate);
+      gte.setHours(0, 0, 0, 0);
+      where.dutyDate.gte = gte;
+    }
+    if (endDate) {
+      const lte = new Date(endDate);
+      lte.setHours(23, 59, 59, 999);
+      where.dutyDate.lte = lte;
+    }
   }
 
   const reports = await prisma.report.findMany({
