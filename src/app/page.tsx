@@ -12,8 +12,8 @@ export default async function Home() {
 
   await prisma.user.upsert({
     where: { email: "admin@kai.id" },
-    create: { id: 2, name: "Mas Tiko (Admin)", email: "admin@kai.id", password: "admin123", role: "ADMIN" },
-    update: { password: "admin123" }
+    create: { id: 2, name: "Admin KAI", email: "admin@kai.id", password: "admin123", role: "ADMIN" },
+    update: { password: "admin123", name: "Admin KAI" }
   }).catch(() => {});
 
   // Auto-seed kereta jika kosong (untuk mempermudah deployment Docker)

@@ -28,7 +28,7 @@ export default async function LoginPage() {
           <p className="text-sm text-gray-600 mb-2 font-semibold">Gunakan akun mock berikut untuk demo:</p>
           <div className="bg-gray-100 p-3 rounded text-xs space-y-2">
             <div>
-              <span className="font-bold text-blue-700">Admin (Mas Tiko)</span><br/>
+              <span className="font-bold text-blue-700">Admin</span><br/>
               Email: <code className="bg-white px-1">admin@kai.id</code><br/>
               Pass: <code className="bg-white px-1">admin123</code>
             </div>
